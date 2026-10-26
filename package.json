@@ -1,0 +1,20 @@
+{
+  "name": "obsidian-explain",
+  "version": "0.1.0",
+  "description": "Select text, right-click, Explain: generates an AI explanation note via OpenRouter and links the selection to it.",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit --skipLibCheck && node esbuild.config.mjs production"
+  },
+  "keywords": ["obsidian", "plugin", "openrouter", "ai"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "builtin-modules": "^5.0.0",
+    "esbuild": "^0.25.0",
+    "obsidian": "^1.8.7",
+    "tslib": "^2.8.1",
+    "typescript": "~5.9.0"
+  }
+}
