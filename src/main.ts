@@ -161,7 +161,7 @@ export default class ExplainPlugin extends Plugin {
 				replaceBody(
 					d,
 					`> [!error] Explanation failed\n> ${msg.replace(/\n/g, "\n> ")}\n>\n` +
-						`> Open this note and run **Explain: Regenerate explanation in current note** to try again.\n`,
+						`> Open this note and run **Explain Link: Regenerate explanation in current note** to try again.\n`,
 				),
 			);
 			new Notice(`Explain failed: ${msg}`, 8000);

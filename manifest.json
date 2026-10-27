@@ -1,6 +1,6 @@
 {
-  "id": "explain",
-  "name": "Explain",
+  "id": "explain-link",
+  "name": "Explain Link",
   "version": "0.1.0",
   "minAppVersion": "1.5.0",
   "description": "Right-click selected text to generate an AI explanation note via OpenRouter and link the selection to it.",

@@ -29,7 +29,7 @@ export async function chatCompletion(opts: ChatOptions): Promise<string> {
 		headers: {
 			Authorization: `Bearer ${opts.apiKey}`,
 			"HTTP-Referer": "https://obsidian.md",
-			"X-Title": "Obsidian Explain",
+			"X-Title": "Obsidian Explain Link",
 		},
 		body: JSON.stringify({
 			model: opts.model,

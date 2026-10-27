@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-explain",
+  "name": "obsidian-explain-link",
   "version": "0.1.0",
   "description": "Select text, right-click, Explain: generates an AI explanation note via OpenRouter and links the selection to it.",
   "main": "main.js",
