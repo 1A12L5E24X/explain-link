@@ -49,6 +49,9 @@ For development, `npm run dev` rebuilds on every change.
 2. `git push --follow-tags`. The Release workflow builds the plugin and creates a
    GitHub release with `main.js`, `manifest.json` and `styles.css`.
 
+   Alternatively, bump the version, push, and run the **Release** workflow manually from the
+   Actions tab; it tags the current commit with the manifest version.
+
 ## License
 
 [MIT](LICENSE)

@@ -1,11 +1,14 @@
 name: Release
 
-# Push a tag that exactly matches the version in manifest.json (e.g. 0.1.0, no "v")
-# to build the plugin and create a GitHub release with the files Obsidian needs.
+# Builds the plugin and creates a GitHub release with the files Obsidian needs.
+# Either push a tag that exactly matches the version in manifest.json (e.g. 0.1.0,
+# no "v"), or run this workflow manually from the Actions tab, which tags the
+# current commit with the manifest version.
 on:
   push:
     tags:
       - "*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -21,13 +24,14 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Check tag matches manifest version
+      - name: Determine version
         run: |
           version=$(node -p "require('./manifest.json').version")
-          if [ "$version" != "${GITHUB_REF_NAME}" ]; then
+          if [ "${GITHUB_REF_TYPE}" = "tag" ] && [ "$version" != "${GITHUB_REF_NAME}" ]; then
             echo "Tag ${GITHUB_REF_NAME} does not match manifest.json version $version"
             exit 1
           fi
+          echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - run: npm ci
       - run: npm run build
@@ -36,6 +40,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${GITHUB_REF_NAME}" \
-            --title "${GITHUB_REF_NAME}" \
+          gh release create "${VERSION}" \
+            --title "${VERSION}" \
+            --target "${GITHUB_SHA}" \
             main.js manifest.json styles.css
