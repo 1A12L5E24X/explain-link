@@ -1,6 +1,6 @@
-import { AbstractInputSuggest, App, PluginSettingTab, Setting, TFolder } from "obsidian";
+import { AbstractInputSuggest, App, Notice, PluginSettingTab, Setting, TFolder } from "obsidian";
 import type ExplainPlugin from "./main";
-import { listModels, OpenRouterModel } from "./openrouter";
+import { listModels, OpenRouterModel, testConnection } from "./openrouter";
 
 export interface ExplainSettings {
 	apiKey: string;
@@ -70,6 +70,26 @@ export class ExplainSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
+		new Setting(containerEl)
+			.setName("Test connection")
+			.setDesc("Checks that openrouter.ai is reachable and the API key works.")
+			.addButton((b) =>
+				b.setButtonText("Test").onClick(async () => {
+					if (!s.apiKey) {
+						new Notice("Explain: enter an API key first.");
+						return;
+					}
+					b.setDisabled(true).setButtonText("Testing…");
+					try {
+						new Notice(`Explain: ${await testConnection(s.apiKey)}`, 6000);
+					} catch (e) {
+						new Notice(`Explain: ${(e as Error).message}`, 10000);
+					} finally {
+						b.setDisabled(false).setButtonText("Test");
+					}
+				}),
+			);
 
 		new Setting(containerEl)
 			.setName("Model")
