@@ -39,7 +39,7 @@ export default class ExplainPlugin extends Plugin {
 
 		this.addCommand({
 			id: "explain-selection",
-			name: "Explain selection",
+			name: "Explain selected text",
 			editorCheckCallback: (checking, editor, info) => {
 				if (!editor.getSelection().trim()) return false;
 				if (!checking) this.explainSelection(editor, info.file);
@@ -49,7 +49,7 @@ export default class ExplainPlugin extends Plugin {
 
 		this.addCommand({
 			id: "regenerate-explanation",
-			name: "Regenerate this explanation",
+			name: "Regenerate explanation in current note",
 			checkCallback: (checking) => {
 				const file = this.app.workspace.getActiveFile();
 				const fm = file && this.app.metadataCache.getFileCache(file)?.frontmatter;
@@ -161,7 +161,7 @@ export default class ExplainPlugin extends Plugin {
 				replaceBody(
 					d,
 					`> [!error] Explanation failed\n> ${msg.replace(/\n/g, "\n> ")}\n>\n` +
-						`> Open this note and run **Explain: Regenerate this explanation** to try again.\n`,
+						`> Open this note and run **Explain: Regenerate explanation in current note** to try again.\n`,
 				),
 			);
 			new Notice(`Explain failed: ${msg}`, 8000);
