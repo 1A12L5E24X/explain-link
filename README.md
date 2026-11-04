@@ -9,6 +9,7 @@ that note. Hover the link (Page Preview) to read the explanation without leaving
 
 - **Right-click → Explain** on any selection, plus an `Explain selected text` command you can bind to a hotkey.
 - **Any OpenRouter model**: searchable model picker in settings (loaded from OpenRouter's model list).
+- **Multilingual**: by default every explanation is written in both English and Slovak, each in its own section (`## English`, `## Slovenčina`). Change the *Languages* setting (comma-separated) to pick other languages, or leave it empty for one.
 - **Context-aware**: the surrounding text and note title are sent along, so "bank" in a finance note and in a river note get different explanations.
 - **Linked back**: a single-line selection becomes `[[Explanations/term|term]]`. A multi-line paragraph keeps its text and gets a small `(explained)` link appended.
 - **No duplicate spending**: explaining the same text again links to the existing note (toggleable).

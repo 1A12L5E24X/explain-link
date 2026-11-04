@@ -13,6 +13,7 @@ export interface ExplainSettings {
 	maxTokens: number;
 	reuseExisting: boolean;
 	openAfterCreate: boolean;
+	languages: string;
 }
 
 export const DEFAULT_SYSTEM_PROMPT =
@@ -46,6 +47,7 @@ export const DEFAULT_SETTINGS: ExplainSettings = {
 	maxTokens: 1200,
 	reuseExisting: true,
 	openAfterCreate: false,
+	languages: "English, Slovak",
 };
 
 export class ExplainSettingTab extends PluginSettingTab {
@@ -146,6 +148,22 @@ export class ExplainSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName("Generation").setHeading();
 
 		new Setting(containerEl)
+			.setName("Languages")
+			.setDesc(
+				"Comma-separated. The explanation is written in each language, one section per language " +
+					"(e.g. \"English, Slovak\"). Leave empty to use a single language.",
+			)
+			.addText((text) =>
+				text
+					.setPlaceholder("English, Slovak")
+					.setValue(s.languages)
+					.onChange(async (v) => {
+						s.languages = v;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		new Setting(containerEl)
 			.setName("Context size")
 			.setDesc("Characters of surrounding text sent with the selection, on each side.")
 			.addText((text) =>
@@ -173,6 +191,7 @@ export class ExplainSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Max tokens")
+			.setDesc("Per language: multiplied by the number of languages above.")
 			.addText((text) =>
 				text.setValue(String(s.maxTokens)).onChange(async (v) => {
 					const n = parseInt(v, 10);

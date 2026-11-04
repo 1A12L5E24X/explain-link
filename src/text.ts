@@ -56,3 +56,23 @@ export function replaceBody(data: string, body: string): string {
 	const fm = data.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
 	return (fm ? fm[0] : "") + body;
 }
+
+export function parseLanguages(value: string): string[] {
+	return value
+		.split(",")
+		.map((l) => l.trim())
+		.filter(Boolean);
+}
+
+// Extra system-prompt instruction so the explanation is written in every chosen language.
+// Kept out of the editable prompts so it also applies to users with customised prompts.
+export function languageInstruction(languages: string[]): string {
+	if (languages.length === 0) return "";
+	if (languages.length === 1) return `Write the explanation in ${languages[0]}.`;
+	return (
+		`Write the complete explanation in each of these languages, in this order: ${languages.join(", ")}. ` +
+		"Put each language in its own section starting with a level-2 heading that is the language's name " +
+		"written in that language (for example \"## English\", \"## Slovenčina\"). " +
+		"Every section must contain the same content, fully translated; do not mix languages within a section."
+	);
+}

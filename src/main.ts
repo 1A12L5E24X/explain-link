@@ -1,7 +1,7 @@
 import { Editor, MarkdownFileInfo, MarkdownView, Menu, normalizePath, Notice, Plugin, TFile, TFolder } from "obsidian";
 import { chatCompletion } from "./openrouter";
 import { DEFAULT_SETTINGS, ExplainSettings, ExplainSettingTab } from "./settings";
-import { buildBody, canBeLinkText, classify, fillTemplate, Kind, normalize, noteTitle, replaceBody } from "./text";
+import { buildBody, canBeLinkText, classify, fillTemplate, Kind, languageInstruction, normalize, parseLanguages, noteTitle, replaceBody } from "./text";
 
 const PENDING = "⏳ *Generating explanation…*\n";
 
@@ -130,14 +130,16 @@ export default class ExplainPlugin extends Plugin {
 
 	private async generateInto(file: TFile, req: Request) {
 		const s = this.settings;
+		const languages = parseLanguages(s.languages);
+		const systemPrompt = [s.systemPrompt, languageInstruction(languages)].filter(Boolean).join("\n\n");
 		try {
 			const explanation = await chatCompletion({
 				apiKey: s.apiKey,
 				model: s.model,
 				temperature: s.temperature,
-				maxTokens: s.maxTokens,
+				maxTokens: s.maxTokens * Math.max(1, languages.length),
 				messages: [
-					{ role: "system", content: s.systemPrompt },
+					{ role: "system", content: systemPrompt },
 					{
 						role: "user",
 						content: fillTemplate(s.promptTemplate, {
