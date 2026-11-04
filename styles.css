@@ -8,3 +8,7 @@
 .explain-muted {
 	color: var(--text-muted);
 }
+
+.explain-language-item {
+	padding-left: var(--size-4-6);
+}

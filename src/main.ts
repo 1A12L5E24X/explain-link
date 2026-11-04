@@ -62,6 +62,10 @@ export default class ExplainPlugin extends Plugin {
 
 	async loadSettings() {
 		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		// Older versions stored languages as a comma-separated string.
+		const langs: unknown = this.settings.languages;
+		if (typeof langs === "string") this.settings.languages = parseLanguages(langs);
+		else if (!Array.isArray(langs)) this.settings.languages = [...DEFAULT_SETTINGS.languages];
 	}
 
 	async saveSettings() {
@@ -130,7 +134,7 @@ export default class ExplainPlugin extends Plugin {
 
 	private async generateInto(file: TFile, req: Request) {
 		const s = this.settings;
-		const languages = parseLanguages(s.languages);
+		const languages = s.languages.map((l) => l.trim()).filter(Boolean);
 		const systemPrompt = [s.systemPrompt, languageInstruction(languages)].filter(Boolean).join("\n\n");
 		try {
 			const explanation = await chatCompletion({

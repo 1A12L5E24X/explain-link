@@ -57,6 +57,16 @@ export function replaceBody(data: string, body: string): string {
 	return (fm ? fm[0] : "") + body;
 }
 
+// Suggestions for the language picker; any other language can be typed in freely.
+export const COMMON_LANGUAGES = [
+	"Arabic", "Bulgarian", "Catalan", "Chinese (Simplified)", "Chinese (Traditional)", "Croatian",
+	"Czech", "Danish", "Dutch", "English", "Estonian", "Finnish", "French", "German", "Greek",
+	"Hebrew", "Hindi", "Hungarian", "Indonesian", "Irish", "Italian", "Japanese", "Korean",
+	"Latin", "Latvian", "Lithuanian", "Norwegian", "Persian", "Polish", "Portuguese", "Romanian",
+	"Russian", "Serbian", "Slovak", "Slovenian", "Spanish", "Swahili", "Swedish", "Thai",
+	"Turkish", "Ukrainian", "Vietnamese",
+];
+
 export function parseLanguages(value: string): string[] {
 	return value
 		.split(",")

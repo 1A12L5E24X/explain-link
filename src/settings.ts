@@ -1,5 +1,6 @@
 import { AbstractInputSuggest, App, Notice, PluginSettingTab, Setting, TFolder } from "obsidian";
 import type ExplainPlugin from "./main";
+import { COMMON_LANGUAGES } from "./text";
 import { listModels, OpenRouterModel, testConnection } from "./openrouter";
 
 export interface ExplainSettings {
@@ -13,7 +14,7 @@ export interface ExplainSettings {
 	maxTokens: number;
 	reuseExisting: boolean;
 	openAfterCreate: boolean;
-	languages: string;
+	languages: string[];
 }
 
 export const DEFAULT_SYSTEM_PROMPT =
@@ -47,7 +48,7 @@ export const DEFAULT_SETTINGS: ExplainSettings = {
 	maxTokens: 1200,
 	reuseExisting: true,
 	openAfterCreate: false,
-	languages: "English, Slovak",
+	languages: ["English", "Slovak"],
 };
 
 export class ExplainSettingTab extends PluginSettingTab {
@@ -147,21 +148,7 @@ export class ExplainSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl).setName("Generation").setHeading();
 
-		new Setting(containerEl)
-			.setName("Languages")
-			.setDesc(
-				"Comma-separated. The explanation is written in each language, one section per language " +
-					"(e.g. \"English, Slovak\"). Leave empty to use a single language.",
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("English, Slovak")
-					.setValue(s.languages)
-					.onChange(async (v) => {
-						s.languages = v;
-						await this.plugin.saveSettings();
-					}),
-			);
+		this.displayLanguages(containerEl);
 
 		new Setting(containerEl)
 			.setName("Context size")
@@ -233,6 +220,113 @@ export class ExplainSettingTab extends PluginSettingTab {
 				this.display();
 			}),
 		);
+	}
+
+	private displayLanguages(containerEl: HTMLElement): void {
+		const s = this.plugin.settings;
+		const save = async () => {
+			await this.plugin.saveSettings();
+			this.display();
+		};
+
+		new Setting(containerEl)
+			.setName("Languages")
+			.setDesc(
+				s.languages.length === 0
+					? "No languages chosen: the model picks one (usually the language of the selection)."
+					: "The explanation is written in each of these languages, one section per language, in this order.",
+			);
+
+		s.languages.forEach((lang, i) => {
+			new Setting(containerEl)
+				.setClass("explain-language-item")
+				.setName(lang)
+				.addExtraButton((b) =>
+					b
+						.setIcon("arrow-up")
+						.setTooltip("Move up")
+						.setDisabled(i === 0)
+						.onClick(async () => {
+							if (i === 0) return;
+							[s.languages[i - 1], s.languages[i]] = [s.languages[i], s.languages[i - 1]];
+							await save();
+						}),
+				)
+				.addExtraButton((b) =>
+					b
+						.setIcon("arrow-down")
+						.setTooltip("Move down")
+						.setDisabled(i === s.languages.length - 1)
+						.onClick(async () => {
+							if (i === s.languages.length - 1) return;
+							[s.languages[i + 1], s.languages[i]] = [s.languages[i], s.languages[i + 1]];
+							await save();
+						}),
+				)
+				.addExtraButton((b) =>
+					b
+						.setIcon("trash")
+						.setTooltip("Remove")
+						.onClick(async () => {
+							s.languages.splice(i, 1);
+							await save();
+						}),
+				);
+		});
+
+		let input: HTMLInputElement;
+		const add = async (value: string) => {
+			const lang = value.trim();
+			if (!lang) return;
+			if (s.languages.some((l) => l.toLowerCase() === lang.toLowerCase())) {
+				new Notice(`Explain: ${lang} is already in the list.`);
+				return;
+			}
+			s.languages.push(lang);
+			await save();
+		};
+
+		new Setting(containerEl)
+			.setName("Add language")
+			.setDesc("Pick from the list or type any language.")
+			.addText((text) => {
+				input = text.inputEl;
+				new LanguageSuggest(this.app, input, () => s.languages, add);
+				text.setPlaceholder("e.g. German");
+				input.addEventListener("keydown", (e) => {
+					if (e.key === "Enter") {
+						e.preventDefault();
+						add(input.value);
+					}
+				});
+			})
+			.addButton((b) => b.setButtonText("Add").setCta().onClick(() => add(input.value)));
+	}
+}
+
+class LanguageSuggest extends AbstractInputSuggest<string> {
+	constructor(
+		app: App,
+		private inputEl: HTMLInputElement,
+		private chosen: () => string[],
+		private onPick: (lang: string) => void,
+	) {
+		super(app, inputEl);
+	}
+
+	getSuggestions(query: string): string[] {
+		const q = query.toLowerCase().trim();
+		const taken = new Set(this.chosen().map((l) => l.toLowerCase()));
+		return COMMON_LANGUAGES.filter((l) => !taken.has(l.toLowerCase()) && l.toLowerCase().includes(q));
+	}
+
+	renderSuggestion(lang: string, el: HTMLElement): void {
+		el.setText(lang);
+	}
+
+	selectSuggestion(lang: string): void {
+		this.close();
+		this.onPick(lang);
 	}
 }
 
